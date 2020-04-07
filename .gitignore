@@ -1,3 +1,34 @@
+
+# Byte-compiled / optimized / DLL files
+
+*.log
+
+*.pot
+
+*.pyc
+
+*/*/*/__pycache__/
+
+*/*/__pycache__/
+
+*/__pycache__/
+
+*/.gitignore
+
+/__pycache__/
+
+/staticfiles
+
+cfabib/CfA_Bib_Helper.py
+cfabib/*.txt
+cfabib/check.csv
+cfabib/dq.sqlite3
+bibhelper.py
+importdata-old.py
+
+cfabib/secrets.py
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
