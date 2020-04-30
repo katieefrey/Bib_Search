@@ -101,7 +101,7 @@ WSGI_APPLICATION = 'cfabib.wsgi.application'
 
 
 
-# HEROKU
+#HEROKU
 DATABASES = {
    'default': {
        'ENGINE' : 'django.db.backends.postgresql',

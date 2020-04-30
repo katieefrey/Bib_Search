@@ -35,8 +35,9 @@
         <br/>
         <li><a href="#report">Reports</a></li>
         <ul>
-            <li><a href="#read">Report History</a></li>
+            <li><a href="#history">Report History</a></li>
             <li><a href="#read">Reading a Report</a></li>
+            <li><a href="#summaries">Refereed Summaries</a></li>
             <li><a href="#graph">Export Graphs</a></li>
             <li><a href="#sheet">Export Spreadsheets</a></li>
         </ul>
@@ -51,7 +52,7 @@
 <a name="what"></a>
 <br/><br/>
 <h3>What Does This Site Do?</h3>
-This site was designed to generate publication statistics reports from the CfA Bibliography.  It allows someone to submit a list of names, for example the researchers within a department, to automatically generate publication stats drawn from the CfA Bibliography.
+This site was designed by Katie Frey at the <a href="http://library.cfa.harvard.edu">Wolbach Library</a> of the <a href="http://cfa.harvard.edu">Center for Astrophysics</a> to generate publication statistics reports from the CfA Bibliography.  It allows someone to submit a list of names, for example the researchers within a department, to automatically generate publication stats drawn from the CfA Bibliography.  Currently it is restricted to the CfA Bibliography, but there are plans to expand it to other bibilographic groups curated within the Astrophysics Data System.  Contact <a href="/about">Katie Frey</a> if you think you should have access.
 
 <a name="bib"></a>
 <br/><br/>
@@ -147,7 +148,7 @@ It can take anywhere from a few seconds to several minutes to execute your query
 <a name="report"></a>
 <br/><br/>
 <h3>Reports</h3>
-In order to see if your most recent query has completed, and to see your past reports, click on "<a href="/history">Report History</a>" from the top menu.
+In order to see if your most recent query has completed, and to see your past reports, click on "<a href="/history">Report History</a>" underneath "Reports" from the top menu.
 
 <a name="history"></a>
 <br/><br/>
@@ -167,14 +168,14 @@ The main content of the report shows a couple of graphs.
     </li>
     <ul>
         <li>
-            Articles in which they were the "first author" are emphasized with a darker shade.
+            Articles in which they were the "first author" are emphasized with a darker shade.  If more than one person on your list were co-authors on an article, the article will be counted once for each author in this graph and in its related tabular data.
         </li>
     </ul>
     <li>
-        The second graph shows the total number of articles written by the authors in this query that were published in each journal.
+        The second graph shows the total number of articles written by the authors in this query that were published in each journal.  If more than one person in your list were co-authors on an article, the article is only counted once in this graph and in its related tabular data.
     </li>
     <li>
-        Below the graphs is some tabular data displaying the number of refereed & non refereed articles authored by a specific person, how many of those were they the first author for, and how many citations those articles have received to date.
+        Below the graphs is some tabular data displaying the number of refereed & non refereed articles authored by a specific person, how many of those were they the first author for, and how many citations those articles have received to date.  Keep in mind that if any articles have co-authos in your query list, the article will be counted once for each co-author in the author tables, but only once total in the journal table.
     </li>
         <ul>
         <li>
@@ -183,8 +184,13 @@ The main content of the report shows a couple of graphs.
     </ul>
 </ol>
 
-<a name="graph"></a>
+<a name="summaries"></a>
 <br/>
+<h4>Refereed Summaries</h4>
+Under the "Reports" menu item is an option for "Refereed Summaries."  This report will collect the total number of refereed articles and the sum of their refereed citations for each year of a provided range.  When viewing a summary, you can click through to the full ADS results as well as export the tabluar data.
+
+<a name="graph"></a>
+<br/><br/>
 <h4>Exporting Graphs</h4>
 When you mouse over a graph, at the top you should see a series of icons appear.  The leftmost icon looks like a camera.  Click that icon to download a .png image of the graph.
 <a name="sheet"></a>

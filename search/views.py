@@ -1,6 +1,6 @@
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 
 from django.contrib.auth import update_session_auth_hash
@@ -12,31 +12,12 @@ from .forms import DevkeyForm
 import urllib.parse
 import requests
 import time
+import csv
 
-
-from search.models import MyModel, Report, Journal, Author
-from search.tasks import counter, add, adsquery
+from search.models import Report, Journal, Author, SummaryReport, Summary
+from search.tasks import add, adsquery, summaryquery
 
 import logging
-
-def home(request):
-    instance_counter = 0
-
-    context = {}
-
-    if MyModel.objects.exists():
-        print("it exists")
-        instance_counter = MyModel.objects.get(id=1).counter
-
-    else:
-        print("it does not exist")
-
-    context['counter'] = instance_counter
-    counter.delay()
-    print("counter delay?")
-    add.delay(3,6)
-    return render(request, "search/home.html", context)
-
 
 
 # Create your views here.
@@ -138,6 +119,12 @@ def help(request):
 
     return render(request, "search/help.html", context)
 
+def about(request):
+
+    context = {}
+
+    return render(request, "search/about.html", context)
+
 def search(request):
 
     #if they are NOT loggedin...
@@ -212,7 +199,7 @@ def queued(request):
 
         reid = makeset.id
 
-        allsets = Report.objects.filter(username=username)
+        #allsets = Report.objects.filter(username=username)
 
         print("Sending the query to ADS...")
 
@@ -225,7 +212,7 @@ def queued(request):
             "namelist"  :  authorlist,
             "daterange" :  daterange,
             "bibgroup"  :  bib,
-            "allsets"   :  allsets,
+            #"allsets"   :  allsets,
             "curset"    :  reid,
             }
 
@@ -254,6 +241,7 @@ def history(request):
         }
 
     return render(request, "search/history.html", context)
+
 
 
 def report(request, reid):
@@ -309,7 +297,7 @@ def report(request, reid):
 
     return render(request, "search/results.html", context)
 
-import csv
+
 
 
 def export_author(request):
@@ -351,6 +339,138 @@ def export_journal(request):
     return response
 
 
+def sumqueue(request):
+
+    #if they are NOT loggedin...
+    if not request.user.is_authenticated:
+        context = {
+            "state": "home"
+            }
+        return render(request, "search/index.html", context)
+
+    #otherwise, if they are logged in...
+    username = request.user
+    userid = username.id
+
+    context = {
+        "err" : ""
+        }
+
+    startdate = request.POST["startdate"]
+    enddate = request.POST["enddate"]
+    bibgroup = username.bibgroup #id
+    bib = bibgroup.bibgroup #string
+    daterange = startdate+" TO "+enddate
+
+    devkey = username.devkey
+
+    print (bibgroup.bibgroup)
+
+    if startdate == "" or enddate == "":
+        error = "Please provide valid dates!"
+        context["err"] = error
+        return render(request, "search/sumhistory.html", context)
+
+    else:
+
+        makeset = SummaryReport.objects.create(username=username)
+        makeset.bibgroup_id = bibgroup.id
+        makeset.save()
+
+        reid = makeset.id
+
+        #allsets = Report.objects.filter(username=username)
+
+        print("Sending the query to ADS...")
+
+        # send query to ADS via Celery...!
+        summaryquery.delay(startdate,enddate,bib,devkey,reid)
+        
+        makeset.save()
+        
+        context = {
+            "daterange" :  daterange,
+            "bibgroup"  :  bib,
+            "curset"    :  reid,
+            }
+
+    #return render(request, "search/sumhistory.html", context)
+    return redirect(summaries)
+    #return HttpResponseRedirect(reverse("index"))
+
+
+def summaries(request):
+
+    #if they are NOT loggedin...
+    if not request.user.is_authenticated:
+        context = {
+            "state": "home"
+            }
+        return render(request, "search/index.html", context)
+
+    #otherwise, if they are logged in...
+    username = request.user
+    userid = username.id
+
+    allsums = SummaryReport.objects.filter(username=username).order_by('-created')
+    
+    context = {
+        "err" : "",
+        "allsums"   :  allsums,
+        "bib": username.bibgroup,
+        }
+
+    #response = redirect('/redirect-success/')
+    return render(request, "search/sumhistory.html", context)
+
+
+
+
+def summary(request, reid):
+
+    #if they are NOT loggedin...
+    if not request.user.is_authenticated:
+        context = {
+            "state": "home"
+            }
+        return render(request, "search/index.html", context)
+
+    #otherwise, if they are logged in...
+    username = request.user
+    userid = username.id
+
+    resultset = SummaryReport.objects.get(id=reid)
+
+    summaries = Summary.objects.filter(resultset_id=reid).order_by('-year')
+
+    context = {
+        "resultset"  :  resultset,
+        "summaries"   :  summaries,
+
+        }
+
+    return render(request, "search/summary.html", context)
+
+
+def export_summary(request):
+    reid = request.POST["reid"]
+    summaries = Summary.objects.filter(resultset_id=reid).order_by('-year')
+
+    report = SummaryReport.objects.get(id=reid)
+
+    # Create the HttpResponse object with the appropriate CSV header.
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="Journals_report'+reid+'_'+str(report.created)+'.csv"'
+
+    writer = csv.writer(response)
+
+    writer.writerow(["Summary Report Created On"]+[report.created])
+    writer.writerow(["Year"]+["Total Refereed Articles"]+["Total Citations"])
+
+    for x in summaries:
+        writer.writerow([x.year]+[x.refart]+[x.refcite])
+
+    return response
 
 """
 

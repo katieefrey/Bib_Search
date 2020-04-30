@@ -1,28 +1,18 @@
-from search.models import MyModel, Report, Journal, Author
+from search.models import Report, Journal, Author, Summary, SummaryReport
 from users.models import CustomUser
 from cfabib.celery import app
 
 import json
+import time
 import requests
 import urllib.parse
 
-
-@app.task
-def counter():
-    print("am i in the task?")
-    instance = MyModel.objects.get(id=1)
-    print(instance.counter)
-    instance.counter += 1
-    print(instance.counter)
-    instance.save()
-    return
 
 
 @app.task
 def add(x, y):
     print("adding?")
     return x + y
-
 
 
 @app.task
@@ -192,15 +182,56 @@ def adsquery(namelist,daterange,bibgroup,devkey,reid):
 
 
 
-        
+@app.task
+def summaryquery(startyr, endyr,bibgroup,devkey,reid):
 
+    pubrange = range(int(startyr),int(endyr)+1)
 
+    for y in pubrange:
 
+        citation = 0
 
-        # newlist = sorted(alist, key=lambda k: k['total_art']) 
-        # gnewlist = sorted(galist, key=lambda k: k['total_art']) 
+        url = 'https://api.adsabs.harvard.edu/v1/search/query/?q=bibgroup:'+bibgroup+'&fq=pubdate:'+str(y)+'&fq=property:refereed'
 
-        # jnewlist = sorted(jlist, key=lambda k: k['total_art']) 
+        headers={'Authorization': 'Bearer '+devkey}
+        content = requests.get(url, headers=headers)
+        results=content.json()
+        k = results['response']['docs'][0]
+
+        total = results['response']['numFound']
+        loop = total/200
+        startnum = 0
+
+        #looping a lot!
+        for i in range (1,int(loop+2)):
+        #for i in range (1,3): #use this line instead of above for short testing
+            url1 = url+'&start='+str(startnum)+'&rows=200&fl=citation_count'
+            
+            headers = {'Authorization': 'Bearer '+devkey}
+            content = requests.get(url1, headers=headers)
+            results = content.json()
+
+            docs = results['response']['docs']
+
+            for x in docs:
+
+                try:
+                    citation_count = x['citation_count']
+                except KeyError:
+                    citation_count = 0   
+                           
+                citation += citation_count
+
+            startnum += 200
+            time.sleep(1)
+                        
+        newsummary = Summary.objects.create(resultset_id=reid,year=y,refart=total,refcite=citation)
+        newsummary.save()
+
+    daterange = str(startyr)+" TO "+str(endyr)
+    resultset = SummaryReport.objects.get(id=reid)
+    resultset.daterange = daterange
+    resultset.save()
 
 
 

@@ -4,13 +4,6 @@ from users.models import CustomUser, Bibgroup
 
 # Create your models here.
 
-
-
-
-class MyModel(models.Model):
-    counter = models.IntegerField(verbose_name='counter', default=0)
-
-
 class Report(models.Model):
     username = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -45,4 +38,22 @@ class Author(models.Model):
 
     def __str__(self):
         return f"{self.resultset} {self.aname}"
-    
+
+
+class SummaryReport(models.Model):
+    username = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    bibgroup = models.ForeignKey(Bibgroup, on_delete=models.CASCADE, null=True, blank=True)
+    daterange = models.CharField(max_length=250, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.id}: {self.username.first_name}, {self.daterange}"
+
+class Summary(models.Model):
+    resultset = models.ForeignKey(SummaryReport, on_delete=models.CASCADE, null=True, blank=True)
+    year = models.IntegerField(default=0)
+    refart = models.IntegerField(default=0)
+    refcite = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.resultset} {self.year}"
