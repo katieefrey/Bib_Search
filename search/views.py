@@ -17,11 +17,6 @@ import csv
 from search.models import Report, Journal, Author, SummaryReport, Summary
 from search.tasks import add, adsquery, summaryquery
 
-import logging
-
-
-# Create your views here.
-
 
 def index(request):
     #if they are NOT loggedin...
@@ -43,6 +38,7 @@ def index(request):
 
     return render(request, "search/index.html", context)
     #return render(request, "search/home.html", context)
+
 
 #send user to login form
 def login_form(request):
@@ -74,6 +70,7 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse("index"))
+
 
 def account(request):
     #if they are NOT loggedin...
@@ -113,17 +110,58 @@ def account(request):
 
     return render(request, "search/account.html", context)
 
+
+#send user to registration page
+def register(request):
+    context = {
+        "state": "register",
+        "error" : ""
+        }
+    return render(request, "search/index.html", context)
+
+
+#register new user
+def registering(request):
+    try:
+        username = request.POST["inputUsername"]
+        firstname = request.POST["inputFirst"]
+        lastname = request.POST["inputLast"]
+        email = request.POST["inputEmail"]
+        password = request.POST["inputPassword"]
+
+    except ValueError:
+
+        context = {
+            "state": "register",
+            "error" : "Please fill out this form entierly."
+            }
+        
+        return render(request, "search/index.html", context)
+
+    user = CustomUser.objects.create_user(username,email,password)
+    user.save
+
+    user1 = CustomUser.objects.get(username=username)
+    user1.first_name = firstname
+    user1.last_name = lastname
+    user1.save()
+
+    return HttpResponseRedirect(reverse("index"))
+
+
 def help(request):
 
     context = {}
 
     return render(request, "search/help.html", context)
 
+
 def about(request):
 
     context = {}
 
     return render(request, "search/about.html", context)
+
 
 def search(request):
 
@@ -219,7 +257,6 @@ def queued(request):
     return render(request, "search/queued.html", context)
 
 
-
 def history(request):
 
     #if they are NOT loggedin...
@@ -241,7 +278,6 @@ def history(request):
         }
 
     return render(request, "search/history.html", context)
-
 
 
 def report(request, reid):
@@ -298,8 +334,6 @@ def report(request, reid):
     return render(request, "search/results.html", context)
 
 
-
-
 def export_author(request):
     reid = request.POST["reid"]
     auths = Author.objects.filter(resultset_id=reid).order_by('aname')
@@ -318,6 +352,7 @@ def export_author(request):
         writer.writerow([x.aname]+[x.rart+x.nrart]+[x.rcite+x.nrcite]+[x.rart]+[x.rcite]+[x.nrart]+[x.nrcite])
 
     return response
+
 
 def export_journal(request):
     reid = request.POST["reid"]
@@ -422,8 +457,6 @@ def summaries(request):
 
     #response = redirect('/redirect-success/')
     return render(request, "search/sumhistory.html", context)
-
-
 
 
 def summary(request, reid):
