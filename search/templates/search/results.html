@@ -10,6 +10,26 @@
 
 {% block body %}
 
+<style>
+
+div.sidebar {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 70px;
+    /*border: 3px solid black;*/
+    padding: 0px;
+    background-color: #fff;
+}
+
+  a.anchor {
+    display: block;
+    position: relative;
+    top: -100px;
+    visibility: hidden;
+}
+
+</style>
+
 <div id="home" class="container-fluid">
     <div class="row py-md-3 pl-md-5">
         <h2>CfA Bibliography Author Search Report {{resultset.id}}</h2>
@@ -20,8 +40,8 @@
     <div class="row">
 
     <div class="col-12 col-md-3 col-xl-2 py-md-3 pl-md-5 bd-sidebar section-nav">
-
         <h4>Search Query</h4>
+        <br>
         <strong>Report Created:</strong><br/>
             {{resultset.created}}
             <br/><br/>
@@ -37,10 +57,12 @@
             {% endfor %}
             <br/><br/>
     </div>
+
+
         
     <main class="col-12 col-md-9 col-xl-8 py-md-3 pl-md-5 bd-content" role="main">
-
-        <h4>Tabular Data</h4>
+        <a class="anchor" name="download"></a>
+        <h4>Downnload Tabular Data</h4>
         <table border="0">
             <tr>
                 <td>
@@ -65,16 +87,22 @@
 
         <h4>Graphs</h4>
 
+        <a class="anchor" name="authorgraph"></a>
         <div id="authorgraph"></div>
+        <a class="anchor" name="journalgraph"></a>
         <div id="journalgraph"></div>
 
-        <table border=1>
-        {% for x in authors reversed %}
+        <!-- <table class="table table-borderless">
+            <tr>
+                <td colspan="2"><hr>
+                </td>
+            </tr>
+        {% for x in authors %}
         
             <tr>
                 <td><strong><a target="_blank" href="https://ui.adsabs.harvard.edu/search/q=%20author%3A%22{{x.aname}}%22%20%20bibgroup%3A%22{{resultset.bibgroup}}%22%20%20pubdate%3A%5B{{resultset.daterange}}%5D&sort=date%20desc%2C%20bibcode%20desc&p_=0">{{x.aname}} (ADS)</a></strong></td>
                 <td>
-                    <table border=1>
+                    <table class="table table-borderless">
                         <tr>
                             <td></td>
                             <th>Articles</th>
@@ -99,19 +127,21 @@
                             <td>{{ x.rfirst|add:x.nrfirst }}</td>
                             <td>{{ x.rcite|add:x.nrcite }}</td>
                         </tr>
-
                     </table>
-                    <br/>
+            </tr>
+            <tr>
+                <td colspan="2"><hr>
+                </td>
             </tr>
         
         {% endfor %}
         </table>
 
         <br/><br/>
+ -->
 
-
-
-        <table border=1>
+        <a class="anchor" name="table"></a>
+        <table class="table">
             <tr>
                 <th>Author Name</th>
                 <th>Total Articles</th>
@@ -121,9 +151,9 @@
                 <th>Non Refereed Articles</th>
                 <th>Non Refereed Citations</th>
             </tr>
-            {% for x in authors %}
+            {% for x in authors reversed %}
                 <tr>
-                    <td>{{x.aname}}</td>
+                    <td>{{x.aname}} (<a target="_blank" href="https://ui.adsabs.harvard.edu/search/q=%20author%3A%22{{x.aname}}%22%20%20bibgroup%3A%22{{resultset.bibgroup}}%22%20%20pubdate%3A%5B{{resultset.daterange}}%5D&sort=date%20desc%2C%20bibcode%20desc&p_=0">ADS</a>)</td>
                     <td>{{ x.rart|add:x.nrart }}</td>
                     <td>{{ x.rcite|add:x.nrcite }}</td>
                     <td>{{x.rart}}</td>
@@ -135,6 +165,22 @@
         </table>
 
     </main>
+
+    <div class="col-12 col-md-3 col-xl-2 py-md-3">
+        <div class="sidebar">
+            <h4>Navigate Page</h4>
+            <br>
+            <ul>
+                <li><a href="#download">Download Data</a></li>
+                <li>Graphs:<ul>
+                    <li><a href="#authorgraph"># articles/Author</a></li>
+                    <li><a href="#journalgraph"># articles/Journal</a></li>
+                </ul>
+                </li>
+                <li><a href="#table">View Tabular Data</a></li>
+            </ul>
+        </div>
+    </div>
 
 </div>
 </div>
@@ -193,7 +239,7 @@ var data = [trace1, trace2, trace3, trace4];
 
 
 var layout = {
-  title: 'Number of Publications',
+  title: 'Number of Publications by Author',
   barmode: 'stack',
   autosize: false,
   width: 800,
@@ -230,7 +276,7 @@ var jdata = [{
 }];
 
 var jlayout = {
-  title: 'Number of Publications',
+  title: 'Number of Publications by Journal',
   barmode: 'stack',
   autosize: false,
   width: 900,
