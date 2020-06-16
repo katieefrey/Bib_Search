@@ -29,16 +29,18 @@
                 </div>
                 {% endif %}
 
-                <strong>Name:</strong> {{user.first_name}} {{user.last_name}}
-                <br/>
-                <strong>Bibgroup:</strong> {{user.bibgroup}}
-                <br/><br/>
-
                 {% if update != "" %}
                 <div class="alert alert-success" role="alert">
                     {{update | safe}}
                 </div>
                 {% endif %}
+
+                <strong>Name:</strong> {{user.first_name}} {{user.last_name}}
+                <br/>
+                <strong>Bibgroup:</strong> {{user.bibgroup}}
+                <br/>
+               
+                <br/><br/>
 
                 <form action="{% url 'account' %}" method="post">
                     {% csrf_token %}
@@ -52,6 +54,17 @@
 
             </div>
             <div class="col-5">
+                <form action="{% url 'account' %}" method="post">
+                    {% csrf_token %}
+                    <div class="form-row">
+                        <div class="form-group">
+                            {{ bibform | crispy }}
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Bibgroup</button>
+                </form>
+                <br/><br/>
+
                 <form method="post">
                     {% csrf_token %}
                     {{ pwform | crispy }}

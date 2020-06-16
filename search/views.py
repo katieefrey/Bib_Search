@@ -7,7 +7,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 
 from users.models import Bibgroup, CustomUser
-from .forms import DevkeyForm
+from .forms import DevkeyForm, BibgroupForm
 
 import urllib.parse
 import requests
@@ -92,20 +92,34 @@ def account(request):
         }
 
     if request.method == 'POST':
-        devk = request.POST["inputDevKey"]
-        print(devk)
 
-        username.devkey = devk
-        username.save()
+        try:
+            devk = request.POST["inputDevKey"]
+            username.devkey = devk
+            username.save()
+            context["update"] = "API Token Updated!"
 
-        context["update"] = "API Token Updated!"
+        except:
+            pass
+
+        try:
+            bibg = request.POST["inputBibgroup"]
+            bibgid = Bibgroup.objects.get(bibgroup=bibg)
+            username.bibgroup = bibgid
+            username.save()
+            context["update"] = "Bibgroup updated!"
+
+        except:
+            pass
 
     context["user"] = username
 
     devform = DevkeyForm(initial={"inputDevKey": username.devkey})
+    bibform = BibgroupForm(initial={"inputBibgroup": username})
     pwform = PasswordChangeForm(request.user)
 
     context["devform"] = devform
+    context["bibform"] = bibform
     context["pwform"] = pwform
 
     return render(request, "search/account.html", context)

@@ -6,6 +6,8 @@ from users.models import CustomUser, Bibgroup
 from django.forms.models import ModelForm
 from django.forms.widgets import CheckboxSelectMultiple
 
+from django.db.models.fields import BLANK_CHOICE_DASH
+
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit
@@ -18,3 +20,21 @@ class DevkeyForm(forms.Form):
     class Meta:
         model = CustomUser
         fields = ('devkey',)
+
+
+class BibgroupForm(forms.Form):
+    inputBibgroup = forms.ModelChoiceField(empty_label='----', queryset=Bibgroup.objects.values_list("bibgroup", flat=True).distinct(), label="Bibgroup",required=False)
+    class Meta:
+        model = CustomUser
+        fields = ('bibgroup',)
+
+
+
+#forms.ChoiceField(choices=BLANK_CHOICE_DASH + list(Bibgroup.objects.values_list("bibgroup", flat=True)), label="Bibgroup", required=False)
+
+# class LocationChoiceField(forms.Form):
+
+#     locations = forms.ModelChoiceField(
+#         queryset=Bibgroup.objects.values_list("bibgroup", flat=True).distinct(),
+#         empty_label=None
+#     )
