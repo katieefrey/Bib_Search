@@ -11,5 +11,5 @@ unicodecsv==0.14.1
 urllib3==1.25.8
 whitenoise==5.0.1
 celery==4.4.2
-django_celery_results==1.2.1
+django_celery_results==2.4.0
 django-crispy-forms==1.9.0
